@@ -1,0 +1,62 @@
+const ID_PLANTILLA_DOC="1l3ILmfiK_sAGRNZiToU9RHgnWEd_c8yJpeSHf59xMa4/edit#heading=h.i5doj0udmnir"
+const ID_CARPETA="1KenpkFtMSLOUzM03TM9VJUde5OlPEki6"
+
+function permisos(){
+  DriveApp.getFolders();
+  DocumentApp.openById(ID_PLANTILLA_DOC)
+  GmailApp.getDrafts()
+}
+
+function pdfAPartirDeRespuesta(evento) {
+  var respuestas=evento.namedValues
+  var nombre=respuestas['Nombre(s) y apellido(s) del cliente'][0]
+  var documento=respuestas['Documento de identidad'][0]
+  var email=respuestas['E-mail'][0]
+  var celular=respuestas['Celular'][0]
+  var direccion=respuestas['Dirección de instalación'][0]
+  var condominio=respuestas['Condominio'][0]
+  var aceptacion=respuestas['Acepta el contrato de 12 meses'][0]
+  var velo_pago=respuestas['Velocidad contratada / pago anual'][0]
+  var equipo=respuestas['Adquisición de router óptico'][0]
+  var serie=respuestas['Serie del router óptico'][0]
+  var repetidor=respuestas['Adquisición de repetidor'][0]
+  var tipo=respuestas['Tipo de repetidor adquirido'][0]
+  var tv_internet=respuestas['Adquisición de TV por internet'][0]
+  var tv_inter_unic=respuestas['Costo único TV por internet'][0]
+  var tv_inter_mensual=respuestas['Costo mensual TV por internet'][0]
+  var hora_fecha=respuestas['Marca temporal'][0]
+
+  var carpeta = DriveApp.getFolderById(ID_CARPETA);
+  var archivoPlantilla = DriveApp.getFileById(ID_PLANTILLA_DOC);
+  var copiaArchivo = archivoPlantilla.makeCopy();
+  var idArchivoCopia = copiaArchivo.getId();
+
+  var doc = DocumentApp.openById(idArchivoCopia);
+  var txt = doc.getBody();
+  txt.replaceText("{{nombre}}",nombre)
+  txt.replaceText("{{documento}}",documento)
+  txt.replaceText("{{email}}",email)
+  txt.replaceText("{{celular}}",celular)
+  txt.replaceText("{{direccion}}",direccion)
+  txt.replaceText("{{condominio}}",condominio)
+  txt.replaceText("{{aceptacion}}",aceptacion)
+  txt.replaceText("{{velo_pago}}",velo_pago)
+  txt.replaceText("{{equipo}}",equipo)
+  txt.replaceText("{{serie}}",serie)
+  txt.replaceText("{{repetidor}}",repetidor)
+  txt.replaceText("{{tipo}}",tipo)
+  txt.replaceText("{{tv_internet}}",tv_internet)
+  txt.replaceText("{{tv_inter_unic}}",tv_inter_unic)
+  txt.replaceText("{{tv_inter_mensual}}",tv_inter_mensual)
+  txt.replaceText("{{hora_fecha}}",hora_fecha)
+  doc.saveAndClose();
+
+  var blob=copiaArchivo.getBlob();
+  var pdf=carpeta.createFile(blob)
+
+  GmailApp.sendEmail(email,"Prueba envido PDF a"+nombre,"Aquí esta tu PDF",
+  {
+   attachments:[pdf]
+  })
+
+}
